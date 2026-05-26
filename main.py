@@ -3,12 +3,13 @@ from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                    InfraredSensor, UltrasonicSensor, GyroSensor)
 from pybricks.parameters import Port, Stop, Direction, Button, Color
+from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
 import time 
 
-# Initialize the EV3 Brick.
+# Initialize the EV3 Brick.            
 ev3 = EV3Brick()
 
 # Initialize the motors.
@@ -31,8 +32,9 @@ def motor_steering(speed, steer):
 # Play a sound.
 ev3.speaker.beep()
 
-shooter.run(300)
-time.sleep(3)
+# cage.run(400)
+# time.sleep(4)
+shooter.run_angle(500, -360)
 # cage.run(400)
 # time.sleep(1)
 # motor_steering(600, 0)

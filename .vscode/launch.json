@@ -1,4 +1,4 @@
-{
+
 	// Use IntelliSense to learn about possible attributes.
 	// Hover to view descriptions of existing attributes.
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
@@ -21,7 +21,7 @@
             "name": "Download and Run",
             "type": "ev3devBrowser",
             "request": "launch",
-            "program": "/C:/Users/RGS/Documents/testing123/main.py"
+            "program": "/home/robot/testing123/main.py"
         }
     ]
 }
