@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <stdint.h>
 #include <vector>
-#include "lib/result.hpp"
+#include "result.hpp"
 
 namespace display {
   class Display {

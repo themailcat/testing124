@@ -1,6 +1,6 @@
 #pragma once
-#include "lib/STL.hpp"
-#include "lib/display.hpp"
+#include "STL.hpp"
+#include "display.hpp"
 #include <array>
 #include <functional>
 #include <vector>
