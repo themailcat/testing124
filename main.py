@@ -43,35 +43,24 @@ def motor_steering_dist(distance, speed, steer):
 # Play a sound.
 ev3.speaker.beep()
 
-# cage.run(400)
-# time.sleep(4)
-# cage.run(400)
-# time.sleep(1)
 shooter.run_angle(500, -300)
-# #motor_steering_dist(10, 500, 0)
 cage.run_angle(300, 90)
 motor_steering(400, 0)
 time.sleep(1)
 motor_steering(0, 0)
-# motor_steering_dist(3, 500, 0)
 shooter.run_angle(500, -60)
-# motor_steering(0,0)
-# time.sleep(1)
-# motor_steering(-600, 0)
-# time.sleep(1)
-# motor_steering(0,0)
 
 # Play another beep sound.
 ev3.speaker.beep(frequency=1000, duration=500)
 
-#state = "search"
-#while True:
+state = "search"
+while True:
     # read gyro
     # read open mv cam
-    #int seeBall = 0
-   # if state == "search":
-       # if seeBall = 0:
-          #  state = "chase"
-    #elif state == "chase":
-       # error = 1
+    int seeBall = 0
+   if state == "search":
+       if seeBall = 0:
+           state = "chase"
+    elif state == "chase":
+       error = 1
 
