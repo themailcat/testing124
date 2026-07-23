@@ -86,7 +86,6 @@ def read():
 
         # If you have multiple values in each line, split the string
         # Here we split by comma, but use whatever is suitable for your data
-        print(len(string))
         values = string.split(',')
 
         # # Convert your values from string to numbers
