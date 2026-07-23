@@ -9,6 +9,8 @@ from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
 import time 
 import math 
+import os
+import select
 
 # Initialize the EV3 Brick.            
 ev3 = EV3Brick()
@@ -21,32 +23,19 @@ shooter = Motor(Port.D)
 
 wheelRadius = 5.4 # milimeters
 
-# # Initialize the drive base.
-# robot = DriveBase(left_motor, right_motor, wheel_diameter=54, axle_track=150)
+# setting up usb commands
 
-# Set baudrate in Python
-# os.system() runs the specified command
-# You can also run the "stty" command from the commandline.
-
-
-import os
-import select
-# List files in the current working directory
-
-# Open the /dev/ttyUSB0 file in read only mode. This file represents the serial device
-# Depending on your serial device, the filename may change (eg. /dev/ttyACM0)
 fd = os.open('/dev/ttyACM0', os.O_RDONLY)
 
-# Create a select object and register the previously opened file in input (reading) mode
-# This let us check if there is data available for reading from the file.
 p = select.poll()
 p.register(fd, select.POLLIN)
 
-# Create an empty bytes object to receive data from the file
 buf = b''
 
+# initialise variables
 x = 0
 y = 0
+GAIN = 2 # change this accordingly 
 
 # Read from serial
 def read():
@@ -89,14 +78,14 @@ def read():
         values = string.split(',')
 
         # # Convert your values from string to numbers
-        x = values[0]
-        y = values[1]
+        ball_x = values[0]
+        ball_y = values[1]
     except:
         pass
 
 # Retrieve the last read value
 def get():
-    return x, y
+    return ball_x, ball_y
 
 # Read and discard all data from buffer.
 # If the EV3 is unable to read from serial for a while, you should run this to clear the read
@@ -105,22 +94,17 @@ def clear():
     while p.poll(0):
         os.read(fd, 100)
 
+# import time
+# timeout = 0
 
-#########################
-# Main loop for testing #
-#########################
+# while True:
+#     read()
 
-import time
-timeout = 0
-
-while True:
-    read()
-
-    # We read every loop, but prints only once per second.
-    now = time.time()
-    if now > timeout:
-        timeout = now + 1
-        print(get())
+#     # We read every loop, but prints only once per second.
+#     now = time.time()
+#     if now > timeout:
+#         timeout = now + 1
+#         print(get())
 
 def motor_steering(speed, steer):
     if steer > 0: 
@@ -137,6 +121,10 @@ def motor_steering_dist(distance, speed, steer):
     while (current_angle / 360 * wheelCircumference < distance):
         motor_steering(speed, steer)
     motor_steering(0, 0)
+
+def spinnn(speed):
+    left_motor.run(speed)
+    right_motor.run(-1*speed)
 
 # Play a sound.
 ev3.speaker.beep()
@@ -165,21 +153,17 @@ ev3.speaker.beep(frequency=1000, duration=500)
 state = "search"
 while True:
     # read gyro
-    # read open mv cam
-    ballx = -1
+    read()
     int seeBall = 0
     if state == "search":
-        motor_steering(100, -100)
-        if ball_x != -1:
+        spinnn(400)
+        if x != -1:
                 state = "chase"
     elif state == "chase":
-        err = 160 - ball_x
-        corr = err x GAIN 
-        otor_steering(corr, 50)
+        err = 320 - ball_x
+        corr = err x -GAIN 
+        motor_steering(corr, 50)
         if ball_x == -1:
             state = "search"
         elif ball_y > 220:
             state = "capture"
-
-
-print(my_ev3.list_dir('/dev/ttyACM0'))
