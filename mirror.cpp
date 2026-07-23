@@ -47,13 +47,13 @@ int main(int argc, char *argv[]) {
 void make_mirror_slice(int argc, char *argv[]) {
   /*
   ARGS:
-  1. camera focus point height (float)
-  2. mirror highest point height (float)
-  3. x distance from camera focus point to edge of field (float)
-  4. camera FOV, in degrees (float)
-  5. pixels per unit (int)
-  6. steps per pixel (int)
-  7. distribution grad (float)
+  1. camera focus point height (float) -> 10cm 
+  2. mirror highest point height (float) -> 20cm 
+  3. x distance from camera focus point to edge of field (float) -> 118.1cm
+  4. camera FOV, in degrees (float) -> 115
+  5. pixels per unit (int) -> 
+  6. steps per pixel (int) -> 
+  7. distribution grad (float) -> 
   8. display width (int)
   9. display height (int)
   */
@@ -110,15 +110,15 @@ void make_mirror_slice(int argc, char *argv[]) {
 void generate_mirror_STL(int argc, char *argv[]) {
   /*
   ARGS:
-  1. camera focus point height (float)
-  2. mirror highest point height (float)
-  3. x distance from camera focus point to edge of field (float)
-  4. camera FOV, in degrees (float)
-  5. pixels per unit (int)
-  6. steps per pixel (int)
-  7. distribution grad (float)
-  8. number of slices (int)
-  9. output file name (char[])
+  1. camera focus point height (float) -> 100mm
+  2. mirror highest point height (float) -> 200mm
+  3. x distance from camera focus point to edge of field (float) -> 1181mm
+  4. camera FOV, in degrees (float) -> 70.8
+  5. pixels per unit (int) -> 30
+  6. steps per pixel (int) -> 100
+  7. distribution grad (float) -> 1000
+  8. number of slices (int) -> 100
+  9. output file name (char[]) 
   10. file header (char[])
   */
   using namespace std;

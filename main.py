@@ -57,10 +57,19 @@ state = "search"
 while True:
     # read gyro
     # read open mv cam
+    ballx = -1
     int seeBall = 0
-   if state == "search":
-       if seeBall = 0:
-           state = "chase"
+    if state == "search":
+        motor_steering(100, -100)
+        if ball_x != -1:
+                state = "chase"
     elif state == "chase":
-       error = 1
+        err = 160 - ball_x
+        corr = err x GAIN 
+        otor_steering(corr, 50)
+        if ball_x == -1:
+            state = "search"
+        elif ball_y > 220:
+            state = "capture"
+
 
