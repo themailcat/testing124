@@ -163,15 +163,15 @@ motor_steering(0,0)
 # Play another beep sound.
 ev3.speaker.beep(frequency=1000, duration=500)
 
-#state = "search"
-#while True:
+state = "search"
+while True:
     # read gyro
     # read open mv cam
-    #int seeBall = 0
-   # if state == "search":
-       # if seeBall = 0:
-          #  state = "chase"
-    #elif state == "chase":
-       # error = 1
+    int seeBall = 0
+   if state == "search":
+       if seeBall = 0:
+           state = "chase"
+    elif state == "chase":
+       error = 1
 
 print(my_ev3.list_dir('/dev/ttyACM0'))

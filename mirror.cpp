@@ -1,9 +1,10 @@
 #include <iostream>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "lib\display.hpp"
 #include "lib\math_utils.hpp"
 #include "lib\mirror_stuff.hpp"
 #include "lib\result.hpp"
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <string>
 
@@ -153,16 +154,16 @@ void generate_mirror_STL(int argc, char *argv[]) {
 void generate_mirror_DXF(int argc, char *argv[]) {
   /*
   ARGS:
-  1. camera focus point height (float)
-  2. mirror highest point height (float)
+  1. camera focus point height (float) -> height of the camera from the ground
+  2. mirror highest point height (float) -> height of the mirror from the ground
   3. x distance from camera focus point to edge of field (float)
-  4. camera FOV, in degrees (float)
+  4. camera FOV, in degrees (float) -> refer to openmv documentation 
   5. pixels per unit (int)
   6. steps per pixel (int)
   7. distribution grad (float)
   8. output file name (char[])
   9. mirror around y-axis (bool: 0/1)
-  10. include axis (bool: 0/1)
+  10. include axis (bool: 0/1) 
   11. scale factor (float)
   */
   using namespace std;
