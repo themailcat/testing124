@@ -75,11 +75,15 @@ def read():
 
         # If you have multiple values in each line, split the string
         # Here we split by comma, but use whatever is suitable for your data
-        values = string.split(',')
+        if values == -1:
+            ball_x = -1
+            continue
+        else:
+            values = string.split(',')
 
-        # # Convert your values from string to numbers
-        ball_x = values[0]
-        ball_y = values[1]
+            # # Convert your values from string to numbers
+            ball_x = values[0]
+            ball_y = values[1]
     except:
         pass
 
@@ -126,8 +130,9 @@ def spinnn(speed):
     left_motor.run(speed)
     right_motor.run(-1*speed)
 
-# Play a sound.
-ev3.speaker.beep()
+#----------------
+# EXECUTABLE CODE 
+#----------------
 
 cage.run(400)
 time.sleep(4)
@@ -147,6 +152,9 @@ motor_steering(-600, 0)
 time.sleep(1)
 motor_steering(0,0)
 
+# Play a sound.
+ev3.speaker.beep()
+
 # Play another beep sound.
 ev3.speaker.beep(frequency=1000, duration=500)
 
@@ -160,10 +168,32 @@ while True:
         if x != -1:
                 state = "chase"
     elif state == "chase":
-        err = 320 - ball_x
+        err = 320 - ball_x # half the field of vission of the openMV camera
         corr = err x -GAIN 
         motor_steering(corr, 50)
         if ball_x == -1:
             state = "search"
-        elif ball_y > 220:
+        elif ball_y > 220: # need to determine this through measurement of the camera FOV
             state = "capture"
+    elif state == "capture":
+        cage.run_angle(300, 90)
+        motor_steering_dist(10, 500, 0)
+        motor_steering(0, 0)
+        cage.run_angle(300, -90)
+        # eventually need to add method of verification for this - when the ball enters 
+        # the shooting zone, return something verifying this during this step 
+        if True:
+            state = "shoot"
+    elif state == "shoot":
+        # locate the ramp
+        # shoot without crossing the red line 
+        #-----pseudo code-----
+        # while red ramp not within view:
+        # drive forward
+        # else:
+        # turn to face the opposing wall (minimise launching distance)
+        # shoot the ball over the wall
+        # verify that the ball is not within capture area
+        if True:
+            state == "search"
+        
