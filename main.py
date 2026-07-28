@@ -9,8 +9,6 @@ from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
 import time 
 import math 
-import os
-import select
 
 # Initialize the EV3 Brick.            
 ev3 = EV3Brick()
@@ -23,19 +21,32 @@ shooter = Motor(Port.D)
 
 wheelRadius = 5.4 # milimeters
 
-# setting up usb commands
+# # Initialize the drive base.
+# robot = DriveBase(left_motor, right_motor, wheel_diameter=54, axle_track=150)
 
+# Set baudrate in Python
+# os.system() runs the specified command
+# You can also run the "stty" command from the commandline.
+
+
+import os
+import select
+# List files in the current working directory
+
+# Open the /dev/ttyUSB0 file in read only mode. This file represents the serial device
+# Depending on your serial device, the filename may change (eg. /dev/ttyACM0)
 fd = os.open('/dev/ttyACM0', os.O_RDONLY)
 
+# Create a select object and register the previously opened file in input (reading) mode
+# This let us check if there is data available for reading from the file.
 p = select.poll()
 p.register(fd, select.POLLIN)
 
+# Create an empty bytes object to receive data from the file
 buf = b''
 
-# initialise variables
 x = 0
 y = 0
-GAIN = 2 # change this accordingly 
 
 # Read from serial
 def read():
@@ -75,21 +86,17 @@ def read():
 
         # If you have multiple values in each line, split the string
         # Here we split by comma, but use whatever is suitable for your data
-        if values == -1:
-            ball_x = -1
-            continue
-        else:
-            values = string.split(',')
+        values = string.split(',')
 
-            # # Convert your values from string to numbers
-            ball_x = values[0]
-            ball_y = values[1]
+        # # Convert your values from string to numbers
+        x = values[0]
+        y = values[1]
     except:
         pass
 
 # Retrieve the last read value
 def get():
-    return ball_x, ball_y
+    return x, y
 
 # Read and discard all data from buffer.
 # If the EV3 is unable to read from serial for a while, you should run this to clear the read
@@ -98,17 +105,22 @@ def clear():
     while p.poll(0):
         os.read(fd, 100)
 
-# import time
-# timeout = 0
 
-# while True:
-#     read()
+#########################
+# Main loop for testing #
+#########################
 
-#     # We read every loop, but prints only once per second.
-#     now = time.time()
-#     if now > timeout:
-#         timeout = now + 1
-#         print(get())
+import time
+timeout = 0
+
+while True:
+    read()
+
+    # We read every loop, but prints only once per second.
+    now = time.time()
+    if now > timeout:
+        timeout = now + 1
+        print(get())
 
 def motor_steering(speed, steer):
     if steer > 0: 
@@ -126,13 +138,8 @@ def motor_steering_dist(distance, speed, steer):
         motor_steering(speed, steer)
     motor_steering(0, 0)
 
-def spinnn(speed):
-    left_motor.run(speed)
-    right_motor.run(-1*speed)
-
-#----------------
-# EXECUTABLE CODE 
-#----------------
+# Play a sound.
+ev3.speaker.beep()
 
 cage.run(400)
 time.sleep(4)
@@ -152,48 +159,18 @@ motor_steering(-600, 0)
 time.sleep(1)
 motor_steering(0,0)
 
-# Play a sound.
-ev3.speaker.beep()
-
 # Play another beep sound.
 ev3.speaker.beep(frequency=1000, duration=500)
 
 state = "search"
 while True:
     # read gyro
-    read()
+    # read open mv cam
     int seeBall = 0
-    if state == "search":
-        spinnn(400)
-        if x != -1:
-                state = "chase"
+   if state == "search":
+       if seeBall = 0:
+           state = "chase"
     elif state == "chase":
-        err = 320 - ball_x # half the field of vission of the openMV camera
-        corr = err x -GAIN 
-        motor_steering(corr, 50)
-        if ball_x == -1:
-            state = "search"
-        elif ball_y > 220: # need to determine this through measurement of the camera FOV
-            state = "capture"
-    elif state == "capture":
-        cage.run_angle(300, 90)
-        motor_steering_dist(10, 500, 0)
-        motor_steering(0, 0)
-        cage.run_angle(300, -90)
-        # eventually need to add method of verification for this - when the ball enters 
-        # the shooting zone, return something verifying this during this step 
-        if True:
-            state = "shoot"
-    elif state == "shoot":
-        # locate the ramp
-        # shoot without crossing the red line 
-        #-----pseudo code-----
-        # while red ramp not within view:
-        # drive forward
-        # else:
-        # turn to face the opposing wall (minimise launching distance)
-        # shoot the ball over the wall
-        # verify that the ball is not within capture area
-        if True:
-            state == "search"
-        
+       error = 1
+
+print(my_ev3.list_dir('/dev/ttyACM0'))
