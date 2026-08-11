@@ -35,7 +35,7 @@ buf = b''
 # initialise variables
 ball_x = -1
 ball_y = -1
-GAIN = 2 # change this accordingly 
+GAIN = 0.3# change this accordingly 
 
 # Read from serial
 def read():
@@ -113,10 +113,18 @@ def clear():
 def motor_steering(speed, steer):
     if steer > 0: 
         left_motor.run(speed) 
+        if speed != 0:
+            print("left motor speed:"+ str(speed))
         right_motor.run(speed - steer * speed / 50) 
+        if speed != 0:
+            print("right motor speed:"+ str(speed + steer * speed / 50))
     else: 
         left_motor.run(speed + steer * speed / 50) 
-        right_motor.run(speed) 
+        if speed != 0:
+            print("left motor speed:"+ str(speed + steer * speed / 50))
+        right_motor.run(speed)
+        if speed != 0:
+            print("right motor speed:"+ str(speed))
 
 def motor_steering_dist(distance, speed, steer):
     wheelCircumference = wheelRadius * 2 * math.pi
@@ -141,12 +149,21 @@ def spinnn(speed):
 counter = 0
 state = "search"
 while True:
+    read()
+    if ball_y == -1:
+        motor_steering(0, 0)
+        continue
+    err = 160 - ball_y
+    print("error"+ str(err)) # half the field of vission of the openMV camera
+    corr = err * GAIN
+    motor_steering(600, corr)
+while True:
     # read gyro
     print(state)
     read()
     print(ball_x)
     if state == "search":
-        spinnn(900)
+        spinnn(600)
         if ball_x != -1:
             # motor_steering(0, 0)
             # break
@@ -156,11 +173,8 @@ while True:
                 counter = 1
         continue
     elif state == "chase":
-        # err = 160 - ball_y # half the field of vission of the openMV camera
-        # corr = err * GAIN
-        # motor_steering(900, corr)
         motor_steering(900, 0)
-        time.sleep(0.5)
+        time.sleep(0.1)
         print(ball_x)
         if ball_y == -1:
             state = "search"
@@ -170,23 +184,24 @@ while True:
     elif state == "capture":
         motor_steering(500, 0)
         time.sleep(1)
-        # while ball_x > 300:
-        #     cage.run_angle(300, -90)
-        # eventually need to add method of verification for this - when the ball enters 
-        # the shooting zone, return something verifying this during this step 
-        # if True:
-        #     state = "shoot"
-        continue
-    elif state == "shoot":
-        # locate the ramp
-        # shoot without crossing the red line 
+        if counter == 1:
+            cage.run_angle(300, -90)
+            counter = 2
+        #t without crossing the red line 
         #-----pseudo code-----
         # while red ramp not within view:
         # drive forward
         # else:
         # turn to face the opposing wall (minimise launching distance)
         # shoot the ball over the wall
-        # verify that the ball is not within capture area
+        # verify that the ball is not in # eventually need to add method of verification for this - when the ball enters 
+        # the shooting zone, return something verifying this during this step 
+        if ball_x > 157:
+            state = "shoot"
+        continue
+    elif state == "shoot":
+        # locate the ramp
+        # shoot within capture area
         motor_steering(0, 0)
         # if True:
         #     state == "search"
