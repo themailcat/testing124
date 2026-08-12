@@ -35,7 +35,7 @@ buf = b''
 # initialise variables
 ball_x = -1
 ball_y = -1
-GAIN = 0.3# change this accordingly 
+GAIN = 2# change this accordingly 
 
 # Read from serial
 def read():
@@ -117,7 +117,7 @@ def motor_steering(speed, steer):
             print("left motor speed:"+ str(speed))
         right_motor.run(speed - steer * speed / 50) 
         if speed != 0:
-            print("right motor speed:"+ str(speed + steer * speed / 50))
+            print("right motor speed:"+ str(speed - steer * speed / 50))
     else: 
         left_motor.run(speed + steer * speed / 50) 
         if speed != 0:
@@ -141,52 +141,44 @@ def spinnn(speed):
 #----------------
 # EXECUTABLE CODE 
 #----------------
-# Play a sound.
-# ev3.speaker.beep()
-
-# Play another beep sound.
-# ev3.speaker.beep(frequency=1000, duration=500)
 counter = 0
 state = "search"
-while True:
-    read()
-    if ball_y == -1:
-        motor_steering(0, 0)
-        continue
-    err = 160 - ball_y
-    print("error"+ str(err)) # half the field of vission of the openMV camera
-    corr = err * GAIN
-    motor_steering(600, corr)
 while True:
     # read gyro
     print(state)
     read()
-    print(ball_x)
+    print(ball_y)
     if state == "search":
-        spinnn(600)
-        if ball_x != -1:
-            # motor_steering(0, 0)
-            # break
+        spinnn(400)
+        if ball_y != -1:
             state = "chase"
+            motor_steering(0, 0)
+            if state == "search":
+                print("WARNING: state did not change: chase")
             if counter == 0:
-                cage.run_angle(300, 90)
+                cage.run_angle(300, 90, wait=False)
                 counter = 1
         continue
     elif state == "chase":
-        motor_steering(900, 0)
-        time.sleep(0.1)
-        print(ball_x)
+        err = 160 - ball_x
+        corr = GAIN * err
+        motor_steering(600, corr)
+        print("motors are moving")
+        if counter == 1:
+            print("testing")
+            shooter.run_angle(500, -300, wait=False)
+            print("everything is working")
+            counter = 2
         if ball_y == -1:
             state = "search"
-        elif ball_x > 150: # need to determine this through measurement of the camera FOV
+        elif ball_y > 250: # need to determine this through measurement of the camera FOV
             state = "capture"
         continue
     elif state == "capture":
-        motor_steering(500, 0)
-        time.sleep(1)
-        if counter == 1:
-            cage.run_angle(300, -90)
-            counter = 2
+        motor_steering(0, 0)
+        if counter == 2:
+            cage.run_angle(300, -90, wait=False)
+            counter = 3
         #t without crossing the red line 
         #-----pseudo code-----
         # while red ramp not within view:
@@ -196,14 +188,14 @@ while True:
         # shoot the ball over the wall
         # verify that the ball is not in # eventually need to add method of verification for this - when the ball enters 
         # the shooting zone, return something verifying this during this step 
-        if ball_x > 157:
+        if ball_y > 250:
             state = "shoot"
         continue
     elif state == "shoot":
         # locate the ramp
         # shoot within capture area
-        motor_steering(0, 0)
+        time.sleep(1)
+        shooter.run_angle(500, -70, wait=True)
         # if True:
-        #     state == "search"
-        continue
+        break
 motor_steering(0, 0)
