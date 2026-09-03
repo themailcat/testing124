@@ -15,11 +15,13 @@ import select
 # Initialize the EV3 Brick.            
 ev3 = EV3Brick()
 
+
 # Initialize the motors.
 left_motor = Motor(Port.A)
 right_motor = Motor(Port.B)
 cage = Motor(Port.C)
 shooter = Motor(Port.D)
+gyro = GyroSensor(Port.S4)
 
 wheelRadius = 5.4 # milimeters
 
@@ -35,7 +37,17 @@ buf = b''
 # initialise variables
 ball_x = -1
 ball_y = -1
-GAIN = 2# change this accordingly 
+GAIN = -2 # change this accordingly 
+
+robot_x = 220
+robot_y = 100
+prev_L = 0
+prev_R = 0
+# bigger quadrant
+quadrant_x = 571.5
+quadrant_y = 1181
+#smaller quadrant
+# quadrant_y = 881
 
 # Read from serial
 def read():
@@ -127,57 +139,87 @@ def motor_steering(speed, steer):
             print("right motor speed:"+ str(speed))
 
 def motor_steering_dist(distance, speed, steer):
-    wheelCircumference = wheelRadius * 2 * math.pi
+    wheelCircumference = 17.6
     left_motor.reset_angle(0)
-    current_angle = left_motor.angle()
-    while (current_angle / 360 * wheelCircumference < distance):
+    while (left_motor.angle() / 360 * wheelCircumference < distance):
         motor_steering(speed, steer)
-    motor_steering(0, 0)
+    motor_steering(0,0)
 
 def spinnn(speed):
     left_motor.run(speed)
     right_motor.run(-1*speed)
 
+def move_straight(speed):
+    err =  gyro.angle() % 360 - 0
+    corr = GAIN * err
+    motor_steering(speed, corr)
+
+def odometry():
+    global robot_x, robot_y, prev_L, prev_R
+    Ldeg = left_motor.angle() - prev_L
+    Rdeg = right_motor.angle() - prev_R
+    prev_L = left_motor.angle()
+    prev_R = right_motor.angle()
+    avg = (Ldeg + Rdeg) / 2
+    avg = avg / 360 * 17.6
+    gyro_angle = 90 - gyro.angle() 
+    robot_x += avg * math.cos(math.radians(gyro_angle))
+    robot_y += avg * math.sin(math.radians(gyro_angle))
+    if ball_y != -1:
+        ball_distance = 9583863 + (8.707394 - 9583863)/(1 + (ball_y/132649.3)**2.09492)
+        print("ball distance: " + str(ball_distance))
+        ball_field_x = robot_x + ball_distance * math.cos(math.radians(gyro_angle))
+        ball_field_y = robot_y + ball_distance * math.sin(math.radians(gyro_angle))
+
 #----------------
 # EXECUTABLE CODE 
 #----------------
+
 counter = 0
 state = "search"
+gyro.reset_angle(0)
+print(math.pi)
+motor_steering_dist(7, 500, 0)
+motor_steering(0, 0)
+shooter.run_angle(300, 500)
+shooter.run_angle(40, 500)
 while True:
+    break
     # read gyro
     print(state)
     read()
-    print(ball_y)
+    print('ball', ball_x, ball_y)
+    print('heading', gyro.angle() % 360)
+    odometry()
     if state == "search":
-        spinnn(400)
+        spinnn(250)
         if ball_y != -1:
             state = "chase"
             motor_steering(0, 0)
-            if state == "search":
-                print("WARNING: state did not change: chase")
             if counter == 0:
-                cage.run_angle(300, 90, wait=False)
+                cage.run_angle(300, -90, wait=False)
                 counter = 1
-        continue
-    elif state == "chase":
-        err = 160 - ball_x
+
+    if state == "chase":
+        err = 217 - ball_x
         corr = GAIN * err
         motor_steering(600, corr)
         print("motors are moving")
         if counter == 1:
             print("testing")
-            shooter.run_angle(500, -300, wait=False)
+            shooter.run_angle(500, 310, wait=False)
             print("everything is working")
             counter = 2
         if ball_y == -1:
             state = "search"
-        elif ball_y > 250: # need to determine this through measurement of the camera FOV
+        elif ball_y < 25:# to determine this through measurement of the camera FOV
             state = "capture"
-        continue
+        # continue
     elif state == "capture":
-        motor_steering(0, 0)
         if counter == 2:
-            cage.run_angle(300, -90, wait=False)
+            motor_steering(900, 0)
+            #time.sleep(0.5)
+            cage.run_angle(300, 90, wait=True)
             counter = 3
         #t without crossing the red line 
         #-----pseudo code-----
@@ -186,16 +228,24 @@ while True:
         # else:
         # turn to face the opposing wall (minimise launching distance)
         # shoot the ball over the wall
-        # verify that the ball is not in # eventually need to add method of verification for this - when the ball enters 
+        # verify that the ball is not in # eventuallyp need to add method of verification for this - when the ball enters 
         # the shooting zone, return something verifying this during this step 
-        if ball_y > 250:
-            state = "shoot"
+        if ball_y < 24:
+            state = "aim"
         continue
+    elif state == "aim":
+        spinnn(300)
+         #cage.run_angle(300, 90, wait=False)
+        if gyro.angle() % 360 < 3 or gyro.angle() % 360 >353:
+            motor_steering_dist(0.5, 700, 0)
+            state = "shoot"
     elif state == "shoot":
         # locate the ramp
         # shoot within capture area
-        time.sleep(1)
-        shooter.run_angle(500, -70, wait=True)
+        shooter.run_angle(500, 40, wait=True)
         # if True:
         break
+    prev_L = left_motor.angle()
+    prev_R = right_motor.angle()
+print(gyro.angle())
 motor_steering(0, 0)
