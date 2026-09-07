@@ -190,78 +190,158 @@ gyro.reset_angle(0)
 #         motor_steering(500, corr)
 #     else:
 #         spinnn(200)
-while True:
-    # read gyro
-    print(state)
-    read()
-    print('ball', ball_x, ball_y)
-    print('heading', gyro.angle() % 360)
-    odometry()
-    if state == "search":
-        spinnn(250)
-        if ball_y != -1:
-            state = "chase"
-            motor_steering(0, 0)
-            time.sleep(1)
-            if counter == 0:
-                cage.run_angle(300, 90, wait=False)
-                counter = 1
-    if state == "chase":
-        err = 217 - ball_x
-        corr = GAIN * err
-        motor_steering(600, corr)
-        print("motors are moving")
-        if counter == 1:
-            print("testing")
-            if shooter_counter == 0:
-                shooter.run_angle(500, -250, wait = False)
-                shooter_counter == 1
-            print("everything is working")
-            counter = 2
-        if ball_y == -1:
-            state = "search"
-        elif ball_y < 25:# to determine this through measurement of the camera FOV
-            state = "capture"
-        # continue
-    elif state == "capture":
-        if counter == 2:
-            motor_steering(900, 0)
-            #time.sleep(0.5)
-            cage.run_angle(300, -90, wait=True)
-            counter = 3
+robot_number = 1
+
+if robot_number == 1:     
+    while True:
+        # read gyro
+        print(state)
+        read()
+        print('ball', ball_x, ball_y)
+        print('heading', gyro.angle() % 360)
+        odometry()
+        if state == "search":
+            spinnn(250)
+            if ball_y != -1:
+                state = "chase"
+                motor_steering(0, 0)
+                time.sleep(1)
+                if counter == 0:
+                    cage.run_angle(300, 90, wait=False)
+                    counter = 1
+        if state == "chase":
+            err = 217 - ball_x
+            corr = GAIN * err
+            motor_steering(600, corr)
+            print("motors are moving")
+            if counter == 1:
+                print("testing")
+                if shooter_counter == 0:
+                    shooter.run_angle(500, -250, wait = False)
+                    shooter_counter == 1
+                print("everything is working")
+                counter = 2
+            if ball_y == -1:
+                state = "search"
+            elif ball_y < 25:# to determine this through measurement of the camera FOV
+                state = "capture"
+            # continue
+        elif state == "capture":
+            if counter == 2:
+                motor_steering(900, 0)
+                #time.sleep(0.5)
+                cage.run_angle(300, -90, wait=True)
+                counter = 3
 
 
 
 
-            
-        #t without crossing the red line 
-        #-----pseudo code-----
-        # while red ramp not within view:
-        # drive forward
-        # else:
-        # turn to face the opposing wall (minimise launching distance)
-        # shoot the ball over the wall
-        # verify that the ball is not in # eventuallyp need to add method of verification for this - when the ball enters 
-        # the shooting zone, return something verifying this during this step 
-        if ball_y < 24:
-            state = "aim"
-        continue
-    elif state == "aim":
-        spinnn(300)
-        # cage.run_angle(300, 90, wait=False)
-        if gyro.angle() % 360 < 3 or gyro.angle() % 360 >353:
-            motor_steering_dist(0.5, 700, 0)
-            state = "shoot"
-    elif state == "shoot":
-        # locate the ramp
-        # shoot within capture area
-        if shooter_counter == 1:
-            shooter.run_angle(500, -110, wait = True)
-            print("heidi")
-            shooter_counter = 0
-        # if True:
-        break
-    prev_L = left_motor.angle()
-    prev_R = right_motor.angle()
-print(gyro.angle())
-motor_steering(0, 0)
+                
+            #t without crossing the red line 
+            #-----pseudo code-----
+            # while red ramp not within view:
+            # drive forward
+            # else:
+            # turn to face the opposing wall (minimise launching distance)
+            # shoot the ball over the wall
+            # verify that the ball is not in # eventuallyp need to add method of verification for this - when the ball enters 
+            # the shooting zone, return something verifying this during this step 
+            if ball_y < 24:
+                state = "aim"
+            continue
+        elif state == "aim":
+            spinnn(300)
+            # cage.run_angle(300, 90, wait=False)
+            if gyro.angle() % 360 < 3 or gyro.angle() % 360 >353:
+                motor_steering_dist(0.5, 700, 0)
+                state = "shoot"
+        elif state == "shoot":
+            # locate the ramp
+            # shoot within capture area
+            if shooter_counter == 1:
+                shooter.run_angle(500, -110, wait = True)
+                print("heidi")
+                shooter_counter = 0
+            # if True:
+            break
+        prev_L = left_motor.angle()
+        prev_R = right_motor.angle()
+    print(gyro.angle())
+    motor_steering(0, 0)
+
+else:
+    while True:
+        # read gyro
+        print(state)
+        read()
+        print('ball', ball_x, ball_y)
+        print('heading', gyro.angle() % 360)
+        odometry()
+        if state == "search":
+            spinnn(250)
+            if ball_y != -1:
+                state = "chase"
+                motor_steering(0, 0)
+                time.sleep(1)
+                if counter == 0:
+                    cage.run_angle(300, 90, wait=False)
+                    counter = 1
+        if state == "chase":
+            err = 217 - ball_x
+            corr = GAIN * err
+            motor_steering(600, corr)
+            print("motors are moving")
+            if counter == 1:
+                print("testing")
+                if shooter_counter == 0:
+                    shooter.run_angle(500, -250, wait = False)
+                    shooter_counter == 1
+                print("everything is working")
+                counter = 2
+            if ball_y == -1:
+                state = "search"
+            elif ball_y < 25:# to determine this through measurement of the camera FOV
+                state = "capture"
+            # continue
+        elif state == "capture":
+            if counter == 2:
+                motor_steering(900, 0)
+                #time.sleep(0.5)
+                cage.run_angle(300, -90, wait=True)
+                counter = 3
+
+
+
+
+                
+            #t without crossing the red line 
+            #-----pseudo code-----
+            # while red ramp not within view:
+            # drive forward
+            # else:
+            # turn to face the opposing wall (minimise launching distance)
+            # shoot the ball over the wall
+            # verify that the ball is not in # eventuallyp need to add method of verification for this - when the ball enters 
+            # the shooting zone, return something verifying this during this step 
+            if ball_y < 24:
+                state = "aim"
+            continue
+        elif state == "aim":
+            spinnn(300)
+            # cage.run_angle(300, 90, wait=False)
+            if gyro.angle() % 360 < 3 or gyro.angle() % 360 >353:
+                motor_steering_dist(0.5, 700, 0)
+                state = "shoot"
+        elif state == "shoot":
+            # locate the ramp
+            # shoot within capture area
+            if shooter_counter == 1:
+                shooter.run_angle(500, -110, wait = True)
+                print("heidi")
+                shooter_counter = 0
+            # if True:
+            break
+        prev_L = left_motor.angle()
+        prev_R = right_motor.angle()
+    print(gyro.angle())
+    motor_steering(0, 0)
