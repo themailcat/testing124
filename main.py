@@ -141,7 +141,7 @@ def motor_steering(speed, steer):
 def motor_steering_dist(distance, speed, steer):
     wheelCircumference = 17.6
     left_motor.reset_angle(0)
-    while (left_motor.angle() / 360 * wheelCircumference < distance):
+    while (abs(left_motor.angle() / 360 * wheelCircumference) < distance):
         motor_steering(speed, steer)
     motor_steering(0,0)
 
@@ -180,7 +180,7 @@ shooter_counter = 0
 state = "search"
 gyro.reset_angle(0)
 # motor_steering_dist(7, 500, 0)
-# motor_steering(0, 0)
+motor_steering(0, 0)
 # while True:
 #     read()
 #     print('ball', ball_x, ball_y)
@@ -191,39 +191,38 @@ gyro.reset_angle(0)
 #     else:
 #         spinnn(200)
 robot_number = 1
-
-if robot_number == 1:     
+if robot_number == 1:  
     while True:
         # read gyro
-        print(state)
+        #print(state)
         read()
-        print('ball', ball_x, ball_y)
+        ga = gyro.angle()
+        #print('ball', ball_x, ball_y)
         print('heading', gyro.angle() % 360)
-        odometry()
+        while gyro.angle() < 1080:
+            print('heading', gyro.angle() )
+            spinnn(200)
+        # odometry()
         if state == "search":
-            spinnn(250)
+            spinnn(200)
             if ball_y != -1:
                 state = "chase"
                 motor_steering(0, 0)
-                time.sleep(1)
                 if counter == 0:
                     cage.run_angle(300, 90, wait=False)
                     counter = 1
         if state == "chase":
             err = 217 - ball_x
             corr = GAIN * err
-            motor_steering(600, corr)
-            print("motors are moving")
+            motor_steering(400, corr)
             if counter == 1:
-                print("testing")
                 if shooter_counter == 0:
-                    shooter.run_angle(500, -250, wait = False)
-                    shooter_counter == 1
-                print("everything is working")
+                    shooter.run_angle(500, 280, wait = False)
+                    shooter_counter = 1
                 counter = 2
             if ball_y == -1:
                 state = "search"
-            elif ball_y < 25:# to determine this through measurement of the camera FOV
+            elif ball_y < 60:# to determine this through measurement of the camera FOV
                 state = "capture"
             # continue
         elif state == "capture":
@@ -232,11 +231,6 @@ if robot_number == 1:
                 #time.sleep(0.5)
                 cage.run_angle(300, -90, wait=True)
                 counter = 3
-
-
-
-
-                
             #t without crossing the red line 
             #-----pseudo code-----
             # while red ramp not within view:
@@ -246,24 +240,26 @@ if robot_number == 1:
             # shoot the ball over the wall
             # verify that the ball is not in # eventuallyp need to add method of verification for this - when the ball enters 
             # the shooting zone, return something verifying this during this step 
-            if ball_y < 24:
+            if ball_y < 55:
                 state = "aim"
             continue
         elif state == "aim":
             spinnn(300)
             # cage.run_angle(300, 90, wait=False)
             if gyro.angle() % 360 < 3 or gyro.angle() % 360 >353:
-                motor_steering_dist(0.5, 700, 0)
                 state = "shoot"
         elif state == "shoot":
             # locate the ramp
             # shoot within capture area
             if shooter_counter == 1:
-                shooter.run_angle(500, -110, wait = True)
+                time.sleep(1)
+                motor_steering_dist(5, 900, 0)
+                shooter.run_angle(500, 80, wait = True)
                 print("heidi")
                 shooter_counter = 0
             # if True:
-            break
+            counter = 0
+            state = "search"
         prev_L = left_motor.angle()
         prev_R = right_motor.angle()
     print(gyro.angle())
@@ -309,11 +305,6 @@ else:
                 #time.sleep(0.5)
                 cage.run_angle(300, -90, wait=True)
                 counter = 3
-
-
-
-
-                
             #t without crossing the red line 
             #-----pseudo code-----
             # while red ramp not within view:
@@ -330,12 +321,11 @@ else:
             spinnn(300)
             # cage.run_angle(300, 90, wait=False)
             if gyro.angle() % 360 < 3 or gyro.angle() % 360 >353:
-                motor_steering_dist(0.5, 700, 0)
                 state = "shoot"
         elif state == "shoot":
             # locate the ramp
             # shoot within capture area
-            if shooter_counter == 1:
+            if shooter_counter == 11:
                 shooter.run_angle(500, -110, wait = True)
                 print("heidi")
                 shooter_counter = 0
